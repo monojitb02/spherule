@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash');
 const OP = ['$eq', '$ne', '$gt', '$lt', '$ge', '$le', '$bt', '$nb', '$in', '$ni', '$ia', '$ea'];
 module.exports = class Statement {
     constructor(field, values) {
@@ -12,12 +13,15 @@ module.exports = class Statement {
                 this.values = values[comparator];
             }
         }
+        if (!_.isArray(this.values)) {
+            this.values = [this.values];
+        }
         if (_.isEmpty(this.values)) {
             throw `Values cannot be left blank in a statement for ${field}`;
         }
     }
     evaluate(data) {
-        
+        let result;
         switch (this.comparator) {
             case '$eq':
                 result = data[this.field] === this.values[0];
@@ -68,5 +72,6 @@ module.exports = class Statement {
             default: // default equal
                 result = data[this.field] === this.values[0];
         }
+        return result;
     }
 }

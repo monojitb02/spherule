@@ -6,7 +6,7 @@ module.exports = class Equation {
             $and = [],
             $or = [],
             $not,
-            ...keyValues = {}
+            ...keyValues
         } = this.validate(equation);
         this.and = [];
         this.or = [];
@@ -26,7 +26,7 @@ module.exports = class Equation {
         }
     }
     validate(equation) {
-        const { $and, $or, $not, ...keyValues } = equation;
+        let { $and, $or, $not, ...keyValues } = equation;
         const isAnd = ($and !== undefined);
         const isOr = ($or !== undefined);
         const isNot = ($not !== undefined);

@@ -1,34 +1,32 @@
 'use strict';
 const Task = require('./task');
+const _ = require('lodash');
 module.exports = class TaskEngine {
     constructor() {
-        this.tasks = [];
-        this.hasData = false;
+        this.tasks = {};
     }
     getTaskById(taskId) {
-        return this.tasks.find(t => t.taskId === taskId);
+        return this.tasks[taskId];
     }
     getTaskByRef(task) {
-        return this.tasks.find(t => t.task === task);
+        const taskId = _.findKey(this.tasks, (t => t.task === task));
+        return this.tasks[taskId];
     }
     registerTask(task) {
-        const registeredTask = this.getTaskByRef(task);
-        if (registeredTask) {
-            return registeredTask._id
-        } else {
+        let registeredTask = this.getTaskByRef(task);
+        if (!registeredTask) {
             const newTask = new Task(task);
-            this.tasks.push(newTask);
-            return newTask._id;
+            this.tasks[newTask._id] = newTask;
+            registeredTask = newTask;
         }
+        return registeredTask;
     }
-    registerData(data, idField) {
-        this.hasData = true;
-        this.masterDataList = data;
-        this.dataIdentity = idField;
-    }
-    enque(taskId, data) {
-        idField = idField || this.dataIdentity;
-        const registeredTask = this.getTaskById(taskId);
-        registeredTask.enque(dataList.map(d => d[this.dataIdentity]));
+    async runAllTasks(options = {}) {
+        return await Promise.all(
+            _.chain(this.tasks)
+                .values()
+                .map(task => task.run(options))
+                .value()
+        );
     }
 }

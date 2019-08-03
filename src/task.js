@@ -1,16 +1,28 @@
 'use strict';
 const uuid = require('uuid/v4');
-module.exports = class TaskEngine {
+module.exports = class Task {
     constructor(task) {
-        this.taskId = uuid();
+        this._id = uuid();
         this.task = task;
-        this.dataIds = new Set();
+        this.dataIds = [];
         this.dataPoint = null;
     }
-    enque(dataIds){
-        this.dataIds.add(dataIds);
+    registerDataPoint(dataPoint) {
+        this.hasData = true;
+        this.dataPoint = dataPoint;
     }
-    async run(dataList, idField){
-        return this.task(dataList.filter());
+    enque(dataIds) {
+        this.dataIds.push(dataIds);
+    }
+    async run(options) {
+        const { filteredOnly } = options;
+        if (!this.hasData) {
+            return;
+        }
+        if (filteredOnly) {
+            return await this.task(this.dataPoint.getByIds(this.dataIds));
+        } else {
+            return await this.task(this.dataIds, this.dataPoint.data, this.dataPoint.rawData);
+        }
     }
 }
