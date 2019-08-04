@@ -25,4 +25,15 @@ module.exports = class Task {
             return await this.task(this.dataIds, this.dataPoint.data, this.dataPoint.rawData);
         }
     }
+    async runImmidiate(id, options) {
+        const { filteredOnly } = options;
+        if (!this.hasData) {
+            return;
+        }
+        if (filteredOnly) {
+            return await this.task(this.dataPoint.getById(id));
+        } else {
+            return await this.task(id, this.dataPoint.data, this.dataPoint.rawData);
+        }
+    }
 }

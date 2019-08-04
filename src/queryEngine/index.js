@@ -1,23 +1,23 @@
 const _ = require('lodash');
 const Statement = require('./statement');
-module.exports = class Equation {
-    constructor(equation) {
+module.exports = class Query {
+    constructor(query) {
         const {
             $and = [],
             $or = [],
             $not,
             ...keyValues
-        } = this.validate(equation);
+        } = this.validate(query);
         this.and = [];
         this.or = [];
         if ($and.length) {
-            this.and = $and.map(subEq => new Equation(subEq));
+            this.and = $and.map(subEq => new Query(subEq));
         }
         if ($or.length) {
-            this.or = $or.map(subEq => new Equation(subEq));
+            this.or = $or.map(subEq => new Query(subEq));
         }
         if ($not) {
-            this.not = new Equation($not);
+            this.not = new Query($not);
         }
         if (!_.isEmpty(keyValues)) {
             _.map(keyValues, (value, key) => {
@@ -25,8 +25,8 @@ module.exports = class Equation {
             });
         }
     }
-    validate(equation) {
-        let { $and, $or, $not, ...keyValues } = equation;
+    validate(query) {
+        let { $and, $or, $not, ...keyValues } = query;
         const isAnd = ($and !== undefined);
         const isOr = ($or !== undefined);
         const isNot = ($not !== undefined);
@@ -53,10 +53,10 @@ module.exports = class Equation {
 
     evaluate(data) {
         if (this.and.length) {
-            return this.and.map(equation => equation.evaluate(data)).every(r => r);
+            return this.and.map(query => query.evaluate(data)).every(r => r);
         }
         if (this.or.length) {
-            return this.or.map(equation => equation.evaluate(data)).some(r => r);
+            return this.or.map(query => query.evaluate(data)).some(r => r);
         }
         if (this.not) {
             return !this.not.evaluate(data);

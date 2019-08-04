@@ -12,7 +12,7 @@ const fn2 = (datas) => {
 }
 const ruleEngine = new RuleEngine({
     $when: {
-        name: { $in: ['Monojit', "Tushar"] }
+        name: { $in: [null, undefined] }
     },
     $then: {
         $task: fn
@@ -25,7 +25,6 @@ const runner = async () => {
     await ruleEngine.runBatch({
         collection: [{
             id: 1,
-            name: 'Monojit'
         }, {
             id: 2,
             name: 'Vikash'
