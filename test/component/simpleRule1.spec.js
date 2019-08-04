@@ -10,6 +10,13 @@ const fn2 = (datas) => {
         console.log('Bye', data.name);
     });
 }
+const fni = (data) => {
+    console.log('hello', data.name);
+}
+const fn2i = (data) => {
+    console.log('Bye', data.name);
+}
+const start = new Date();
 const ruleEngine = new RuleEngine({
     $when: {
         name: { $in: [null, undefined] }
@@ -22,7 +29,8 @@ const ruleEngine = new RuleEngine({
     }
 });
 const runner = async () => {
-    await ruleEngine.runBatch({
+    const running = new Date();
+    await ruleEngine.run({
         collection: [{
             id: 1,
         }, {
@@ -30,7 +38,10 @@ const runner = async () => {
             name: 'Vikash'
         }],
         schema: {}
-    });
+    }, { inBatch: true });
+    const rulesApplied = new Date();
+    console.log(running - start);
+    console.log(rulesApplied - running);
     ruleEngine.taskEngine.runAllTasks({ filteredOnly: true });
 }
 runner();

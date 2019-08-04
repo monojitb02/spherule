@@ -1,25 +1,32 @@
 'use strict';
 const Task = require('./task');
 const _ = require('lodash');
-module.exports = class TaskEngine {
+class TaskEngine {
     constructor() {
         this.tasks = {};
     }
     getTaskById(taskId) {
         return this.tasks[taskId];
     }
+    addTask(task) {
+        this.tasks[task._id] = task;
+    }
     getTaskByRef(task) {
         const taskId = _.findKey(this.tasks, (t => t.task === task));
         return this.tasks[taskId];
     }
     registerTask(task) {
-        let registeredTask = this.getTaskByRef(task);
-        if (!registeredTask) {
-            const newTask = new Task(task);
-            this.tasks[newTask._id] = newTask;
-            registeredTask = newTask;
+        if (task instanceof Task) {
+            this.addTask(task);
+            return task;
         }
-        return registeredTask;
+        const registeredTask = this.getTaskByRef(task);
+        if (registeredTask) {
+            return registeredTask;
+        }
+        const newTask = new Task(task);
+        this.addTask(newTask);
+        return newTask;
     }
     async runAllTasks(options = {}) {
         return await Promise.all(
@@ -30,3 +37,4 @@ module.exports = class TaskEngine {
         );
     }
 }
+module.exports = TaskEngine;
