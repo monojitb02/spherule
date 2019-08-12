@@ -1,12 +1,12 @@
 'use strict';
 const DataPoint = require('./dataPoint');
-module.exports = class DataEngine {
+class DataEngine {
     constructor() {
         this.dataSources = {};
     }
     register(collection, schema, options) {
-        const { isDefault, isTransformed } = options;
-        const newDataSource = new DataPoint(collection, schema, { isTransformed });
+        const { isDefault } = options;
+        const newDataSource = new DataPoint({ collection, schema });
         if (isDefault) {
             this.dataSources.default = newDataSource;
         }
@@ -26,3 +26,4 @@ module.exports = class DataEngine {
         return dataSource;
     }
 }
+module.exports = DataEngine;

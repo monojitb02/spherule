@@ -32,8 +32,8 @@ module.exports = class Query {
         const isNot = ($not !== undefined);
         const isKeyValues = (keyValues !== undefined);
         
-        if (isAnd && !_.isArray($and)) { throw '$and in not an array'; }
-        if (isOr &&!_.isArray($or)) { throw '$or in not an array'; }
+        if (isAnd && !Array.isArray($and)) { throw '$and in not an array'; }
+        if (isOr &&!Array.isArray($or)) { throw '$or in not an array'; }
         if (isNot &&!_.isPlainObject($not)) { throw '$not in not an plain Object'; }
 
         if ([isAnd, isOr, isNot].filter(e => e).length > 1) {

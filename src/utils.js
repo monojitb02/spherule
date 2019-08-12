@@ -1,5 +1,5 @@
 'use strict';
-const runParalleOnList = async (list, cb) => {
+const runParalleOnList = async (list = [], cb) => {
     return await Promise.all(list.map(cb));
 }
 const addToList = async (list, items, cb) => {

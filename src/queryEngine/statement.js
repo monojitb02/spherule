@@ -13,7 +13,7 @@ module.exports = class Statement {
                 this.values = values[comparator];
             }
         }
-        if (!_.isArray(this.values)) {
+        if (!Array.isArray(this.values)) {
             this.values = [this.values];
         }
         if (_.isEmpty(this.values)) {
@@ -22,55 +22,56 @@ module.exports = class Statement {
     }
     evaluate(data) {
         let result;
+        const fieldData = _.get(data, this.field);
         switch (this.comparator) {
             case '$eq':
-                result = data[this.field] === this.values[0];
+                result = fieldData === this.values[0];
                 break;
             case '$ne':
-                result = data[this.field] !== this.values[0];
+                result = fieldData !== this.values[0];
                 break;
             case '$gt':
-                result = data[this.field] > this.values[0];
+                result = fieldData > this.values[0];
                 break;
             case '$lt':
-                result = data[this.field] < this.values[0];
+                result = fieldData < this.values[0];
                 break;
             case '$ge':
-                result = data[this.field] >= this.values[0];
+                result = fieldData >= this.values[0];
                 break;
             case '$le':
-                result = data[this.field] <= this.values[0];
+                result = fieldData <= this.values[0];
                 break;
             case '$bt': // between
                 if (this.values.length === 1) {
-                    result = data[this.field] === this.values[0];
+                    result = fieldData === this.values[0];
                 } else {
-                    result = data[this.field] >= this.values[0] &&
-                        data[this.field] <= this.values[1];
+                    result = fieldData >= this.values[0] &&
+                        fieldData <= this.values[1];
                 }
                 break;
             case '$nb': // not between
                 if (this.values.length === 1) {
-                    result = data[this.field] !== this.values[0];
+                    result = fieldData !== this.values[0];
                 } else {
-                    result = data[this.field] < this.values[0] ||
-                        data[this.field] > this.values[1];
+                    result = fieldData < this.values[0] ||
+                        fieldData > this.values[1];
                 }
                 break;
             case '$in': // in
-                result = _.includes(this.values, data[this.field]);
+                result = _.includes(this.values, fieldData);
                 break;
             case '$ni': // not in
-                result = !_.includes(this.values, data[this.field]);
+                result = !_.includes(this.values, fieldData);
                 break;
             case '$ia': // include all
-                result = _.intersection(this.values, data[this.field]).length === this.values;
+                result = _.intersection(this.values, fieldData).length === this.values;
                 break;
             case '$ea': // exclude all
-                result = _.intersection(this.values, data[this.field]).length === 0;
+                result = _.intersection(this.values, fieldData).length === 0;
                 break;
             default: // default equal
-                result = data[this.field] === this.values[0];
+                result = fieldData === this.values[0];
         }
         return result;
     }
