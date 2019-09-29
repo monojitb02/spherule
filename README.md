@@ -1,5 +1,10 @@
 # spherule
 
+An simple rule and task engine for any type of collection.
+
+Note:
+As of now only data collection is supported but later it is planned to have URI endpoint data and DB data point
+
 Condition
 ```
 {
