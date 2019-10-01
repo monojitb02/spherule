@@ -1,12 +1,21 @@
 'use strict';
 const _ = require('lodash');
-const OP = ['$eq', '$ne', '$gt', '$lt', '$ge', '$le', '$bt', '$nb', '$in', '$ni', '$ia', '$ea'];
+const singleOperandComparators = ['$eq', '$ne', '$gt', '$lt', '$ge', '$le'];
+const doubleOperandComparators = ['$bt', '$nb'];
+const multiOperandComparators = ['$in', '$ni', '$ia', '$ea'];
+const OP = [
+    ...singleOperandComparators,
+    ...doubleOperandComparators,
+    ...multiOperandComparators
+];
 module.exports = class Statement {
     constructor(field, values) {
         this.field = field;
         this.comparator = '$eq';
+        this.value = values;
         this.values = values;
         if (_.isPlainObject(values)) {
+            // multiple comparator on same field is not supported yet
             const comparator = _.chain(values).keys().intersection(OP).head().value();
             if (comparator) {
                 this.comparator = comparator;
@@ -19,60 +28,55 @@ module.exports = class Statement {
         if (_.isEmpty(this.values)) {
             throw `Values cannot be left blank in a statement for ${field}`;
         }
+        this.generateEvalutor();
+    }
+    evaluator(data) {
+        return data === this.value;
     }
     evaluate(data) {
-        let result;
         const fieldData = _.get(data, this.field);
+        return this.evaluator(fieldData);
+    }
+    generateEvalutor() {
         switch (this.comparator) {
             case '$eq':
-                result = fieldData === this.values[0];
+                this.evaluator = (data) => data === this.value;
                 break;
             case '$ne':
-                result = fieldData !== this.values[0];
+                this.evaluator = (data) => data !== this.value;
                 break;
             case '$gt':
-                result = fieldData > this.values[0];
+                this.evaluator = (data) => data > this.value;
                 break;
             case '$lt':
-                result = fieldData < this.values[0];
+                this.evaluator = (data) => data < this.value;
                 break;
             case '$ge':
-                result = fieldData >= this.values[0];
+                this.evaluator = (data) => data >= this.value;
                 break;
             case '$le':
-                result = fieldData <= this.values[0];
+                this.evaluator = (data) => data <= this.value;
                 break;
             case '$bt': // between
-                if (this.values.length === 1) {
-                    result = fieldData === this.values[0];
-                } else {
-                    result = fieldData >= this.values[0] &&
-                        fieldData <= this.values[1];
-                }
+                this.evaluator = (data) => data >= this.minValue && data <= this.maxValue;
                 break;
             case '$nb': // not between
-                if (this.values.length === 1) {
-                    result = fieldData !== this.values[0];
-                } else {
-                    result = fieldData < this.values[0] ||
-                        fieldData > this.values[1];
-                }
+                this.evaluator = (data) => data < this.minValue && data > this.maxValue;
                 break;
             case '$in': // in
-                result = _.includes(this.values, fieldData);
+                this.evaluator = (data) => _.includes(this.values, data);
                 break;
             case '$ni': // not in
-                result = !_.includes(this.values, fieldData);
+                this.evaluator = (data) => !_.includes(this.values, data);
                 break;
             case '$ia': // include all
-                result = _.intersection(this.values, fieldData).length === this.values;
+                this.evaluator = (data) => _.intersection(this.values, data).length === this.values.length;
                 break;
             case '$ea': // exclude all
-                result = _.intersection(this.values, fieldData).length === 0;
+                this.evaluator = (data) => _.intersection(this.values, data).length === 0;
                 break;
             default: // default equal
-                result = fieldData === this.values[0];
+                this.evaluator = (data) => data === this.value;
         }
-        return result;
     }
 }

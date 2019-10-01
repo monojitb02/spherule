@@ -1,0 +1,26 @@
+{
+    "include":[
+        "src/"
+    ],
+    "exclude":[],
+    "sourceMap": false,
+    "instrument": true,
+    "reporter":[
+        "text",
+        "text-summary",
+        "lcov"
+    ],
+    "report-dir": "./coverage/unit",
+    "all": true,
+    "check-coverage": true,
+    "statements": 1,
+    "branches": 1,
+    "functions": 1,
+    "lines": 1,
+    "watermarks": {
+        "statements": [70, 80],
+        "branches": [70, 80],
+        "functions": [70, 80],
+        "lines": [70, 80]
+    }
+}
