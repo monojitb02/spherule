@@ -1,37 +1,51 @@
 'use strict';
 const _ = require('lodash');
-const singleOperandComparators = ['$eq', '$ne', '$gt', '$lt', '$ge', '$le'];
-const doubleOperandComparators = ['$bt', '$nb'];
-const multiOperandComparators = ['$in', '$ni', '$ia', '$ea'];
+const singleOperandComparators = ['$eq', '$!eq', '$ne', '$gt', '$lt', '$ge', '$le'];
+const doubleOperandComparators = ['$bt', '$!bt', '$nb'];
+const multiOperandComparators = ['$in', '$!in', '$ni', '$ip', '$!ea', '$ia', '$ea'];
 const OP = [
     ...singleOperandComparators,
     ...doubleOperandComparators,
     ...multiOperandComparators
 ];
 module.exports = class Statement {
+    //TODO: support schema of the field so that it can be migrated to typed language like go
     constructor(field, values) {
         this.field = field;
+        this.validate(values);
+        this.generateEvalutor();
+    }
+    validate(values) {
         this.comparator = '$eq';
-        this.value = values;
-        this.values = values;
         if (_.isPlainObject(values)) {
             // multiple comparator on same field is not supported yet
             const comparator = _.chain(values).keys().intersection(OP).head().value();
             if (comparator) {
                 this.comparator = comparator;
-                this.values = values[comparator];
+                values = values[this.comparator];
             }
         }
-        if (!Array.isArray(this.values)) {
-            this.values = [this.values];
+        this.isArray = _.isArray(values);
+        this.isPlainObject = _.isPlainObject(values);
+        this.isSingleOperandComparators = _.includes(singleOperandComparators, this.comparator);
+        this.isDoubleOperandComparators = _.includes(doubleOperandComparators, this.comparator);
+        this.isMultiOperandComparators = _.includes(multiOperandComparators, this.comparator);
+        if (this.isSingleOperandComparators && this.isArray) {
+            throw `Array is not supported for '${this.comparator}' operator`;
         }
-        if (_.isEmpty(this.values)) {
-            throw `Values cannot be left blank in a statement for ${field}`;
+        if (!this.isSingleOperandComparators && !values.length) {
+            throw `Only not empty Array is supported for '${this.comparator}' operator`;
         }
-        this.generateEvalutor();
-    }
-    evaluator(data) {
-        return data === this.value;
+        if (this.isSingleOperandComparators) {
+            this.value = values;
+            return;
+        }
+        if (this.isDoubleOperandComparators) {
+            this.minValue = values[0];
+            this.maxValue = values[1] || values[0];
+            return;
+        }
+        this.values = values;
     }
     evaluate(data) {
         const fieldData = _.get(data, this.field);
@@ -43,6 +57,7 @@ module.exports = class Statement {
                 this.evaluator = (data) => data === this.value;
                 break;
             case '$ne':
+            case '$!eq':
                 this.evaluator = (data) => data !== this.value;
                 break;
             case '$gt':
@@ -61,12 +76,14 @@ module.exports = class Statement {
                 this.evaluator = (data) => data >= this.minValue && data <= this.maxValue;
                 break;
             case '$nb': // not between
-                this.evaluator = (data) => data < this.minValue && data > this.maxValue;
+            case '$!bt':
+                this.evaluator = (data) => data < this.minValue || data > this.maxValue;
                 break;
             case '$in': // in
                 this.evaluator = (data) => _.includes(this.values, data);
                 break;
             case '$ni': // not in
+            case '$!in':
                 this.evaluator = (data) => !_.includes(this.values, data);
                 break;
             case '$ia': // include all
@@ -75,7 +92,11 @@ module.exports = class Statement {
             case '$ea': // exclude all
                 this.evaluator = (data) => _.intersection(this.values, data).length === 0;
                 break;
-            default: // default equal
+            case '$ip': // includes partially
+            case '$!ea':
+                this.evaluator = (data) => _.intersection(this.values, data).length > 0;
+                break;
+            default: // default equal. It will never come here
                 this.evaluator = (data) => data === this.value;
         }
     }

@@ -13,8 +13,12 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Test Program",
-            "program": "${workspaceFolder}\\test\\component\\simpleRule1.spec.js"
+            "name": "Debug Unit Test",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/mocha",
+            "args": [
+                "${workspaceFolder}/test/**/*spec.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }
