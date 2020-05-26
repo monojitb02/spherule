@@ -11,10 +11,10 @@ module.exports = class Query {
         this.and = [];
         this.or = [];
         if ($and.length) {
-            this.and = $and.map(subEq => new Query(subEq));
+            this.and = $and.map(subQuery => new Query(subQuery));
         }
         if ($or.length) {
-            this.or = $or.map(subEq => new Query(subEq));
+            this.or = $or.map(subQuery => new Query(subQuery));
         }
         if ($not) {
             this.not = new Query($not);
@@ -31,10 +31,10 @@ module.exports = class Query {
         const isOr = ($or !== undefined);
         const isNot = ($not !== undefined);
         const isKeyValues = (keyValues !== undefined);
-        
+
         if (isAnd && !Array.isArray($and)) { throw '$and in not an array'; }
-        if (isOr &&!Array.isArray($or)) { throw '$or in not an array'; }
-        if (isNot &&!_.isPlainObject($not)) { throw '$not in not an plain Object'; }
+        if (isOr && !Array.isArray($or)) { throw '$or in not an array'; }
+        if (isNot && !_.isPlainObject($not)) { throw '$not in not an plain Object'; }
 
         if ([isAnd, isOr, isNot].filter(e => e).length > 1) {
             throw 'Any one of $and, $or, $not can be used at the same level at a time.';
@@ -45,7 +45,7 @@ module.exports = class Query {
         if (isKeyValues && isNot) {
             throw '$not is not valid in this context. Try in a nested level.';
         }
-        if(_.isEmpty($not)){
+        if (_.isEmpty($not)) {
             $not = undefined;
         }
         return { $and, $or, $not, ...keyValues };
@@ -53,10 +53,10 @@ module.exports = class Query {
 
     evaluate(data) {
         if (this.and.length) {
-            return this.and.map(query => query.evaluate(data)).every(r => r);
+            return this.and.map(queryOrStatement => queryOrStatement.evaluate(data)).every(r => r);
         }
         if (this.or.length) {
-            return this.or.map(query => query.evaluate(data)).some(r => r);
+            return this.or.map(queryOrStatement => queryOrStatement.evaluate(data)).some(r => r);
         }
         if (this.not) {
             return !this.not.evaluate(data);

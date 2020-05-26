@@ -4,8 +4,10 @@
   "description": "Rule-engine for common data sources",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha test/**/*.spec.js",
-    "coverage": "nyc --nycrc-path test/unit/nycrc.json mocha test/**/*.spec.js"
+    "test": "npm run unit-test & npm run component-test",
+    "unit-test": "mocha test/unit/**/*.spec.js",
+    "component-test": "mocha test/component/**/*.spec.js",
+    "coverage": "nyc --nycrc-path test/unit/nycrc.json npm test"
   },
   "repository": {
     "type": "git",

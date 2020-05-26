@@ -3,7 +3,7 @@ const { runParalleOnList, addToList } = require('./utils');
 const Query = require('./queryEngine/query');
 const TaskEngine = require('./taskEngine');
 const DataEngine = require('./dataEngine');
-class RuleEngine {
+module.exports = class RuleEngine {
     /**
      * 
      * @param {*} rule 
@@ -65,15 +65,13 @@ class RuleEngine {
         if (!this.when) {
             return;
         }
-        const promisese = []
+        const promises = []
         if (this.then.length) {
-            promisese.push(...this.then.map(re => re.run({ ids: thenDataIds }, options)));
+            promises.push(...this.then.map(re => re.run({ ids: thenDataIds }, options)));
         }
         if (this.otherwise.length) {
-            promisese.push(...this.otherwise.map(re => re.run({ ids: otherwiseDataIds }, options)));
+            promises.push(...this.otherwise.map(re => re.run({ ids: otherwiseDataIds }, options)));
         }
-        return await Promise.all(promisese);
+        return await Promise.all(promises);
     }
 }
-
-module.exports = RuleEngine;

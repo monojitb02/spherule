@@ -1,25 +1,32 @@
 'use strict';
+const getStats = () => {
+    // let used = process.memoryUsage();
+    // for (let key in used) {
+    //     console.log(`${key} ${Math.round(used[key] / 1024 * 100) / 100} KB`);
+    // }
+    // console.log('============================');
+}
+const data = require('./test2.json');
+// const data = require('./citylots.json');
+getStats();
 const { RuleEngine } = require('../../index');
 const fn = (datas) => {
-    datas.map(data => {
-        console.log('hello', data.name);
-    });
+    console.log('HIT', datas.length);
+    // datas.map(data => {
+    //     console.log('hello', data.properties.MAPBLKLOT);
+    // });
 }
 const fn2 = (datas) => {
-    datas.map(data => {
-        console.log('Bye', data.name);
-    });
+    console.log('MISS', datas.length);
+    // datas.map(data => {
+    //     console.log('Bye', data.geometry.type);
+    // });
 }
-const fni = (data) => {
-    console.log('hello', data.name);
-}
-const fn2i = (data) => {
-    console.log('Bye', data.name);
-}
-const start = new Date();
+getStats();
 const ruleEngine = new RuleEngine({
     $when: {
-        name: { $in: [null, undefined] }
+        'properties.ST_TYPE': 'AVE',
+        // 'properties.STREET': 'UNKNOWN'
     },
     $then: {
         $task: fn
@@ -28,20 +35,42 @@ const ruleEngine = new RuleEngine({
         $task: fn2
     }
 });
+
+getStats();
 const runner = async () => {
+    const collection = data.slice(0, 69);
+    // const collection = data;
+
+    let schema = {
+        uniqueItemProperty: 'properties.MAPBLKLOT',
+        items: {
+            type: 'object',
+            properties: {
+                properties: {
+                    type: 'object',
+                    additionalProperties: false,
+                    properties: {
+                        MAPBLKLOT: { type: 'string' },
+                        BLKLOT: { type: 'string' },
+                        BLOCK_NUM: { type: 'string' },
+                        LOT_NUM: { type: 'string' },
+                        ST_TYPE: { type: 'string' },
+                    }
+                }
+            }
+        }
+    };
+    console.log(`Processing ${collection.length} records`);
     const running = new Date();
     await ruleEngine.run({
-        collection: [{
-            id: 1,
-        }, {
-            id: 2,
-            name: 'Vikash'
-        }],
-        schema: {}
+        collection,
+        schema
     }, { inBatch: true });
     const rulesApplied = new Date();
-    console.log(running - start);
     console.log(rulesApplied - running);
-    ruleEngine.taskEngine.runAllTasks({ filteredOnly: true });
+    getStats();
+    await ruleEngine.taskEngine.runAllTasks({ filteredOnly: true });
 }
 runner();
+
+getStats();

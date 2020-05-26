@@ -7,14 +7,14 @@ describe('Statement Class', () => {
             const statement = new Statement('Field1', 10);
             expect(statement).to.be.an.instanceof(Statement);
             expect(statement.field).to.be.eql('Field1');
-            expect(statement.comparator).to.be.eql('$eq');
+            expect(statement.operator).to.be.eql('$eq');
             expect(statement.value).to.be.eql(10);
         });
         it('Should create Statement with values as undefined', () => {
             const statement = new Statement('Field1');
             expect(statement).to.be.be.an.instanceof(Statement);
             expect(statement.field).to.be.eql('Field1');
-            expect(statement.comparator).to.be.eql('$eq');
+            expect(statement.operator).to.be.eql('$eq');
             expect(statement.value).to.be.eql(undefined);
         });
         it('Should create Statement with array of string', () => {
@@ -24,33 +24,33 @@ describe('Statement Class', () => {
                 expect(e).to.be.eql('Array is not supported for \'$eq\' operator');
             }
         });
-        it('Should create Statement with comparator', () => {
+        it('Should create Statement with operator', () => {
             const statement = new Statement('Field1', { $in: ['value1', 'value2'] });
             expect(statement).to.be.be.an.instanceof(Statement);
             expect(statement.field).to.be.eql('Field1');
-            expect(statement.comparator).to.be.eql('$in');
+            expect(statement.operator).to.be.eql('$in');
             expect(statement.values).to.be.eql(['value1', 'value2']);
         });
         it('Should create Statement with comparicon value as object', () => {
             const statement = new Statement('Field1', { otherRandomField: ['value1', 'value2'] });
             expect(statement).to.be.be.an.instanceof(Statement);
             expect(statement.field).to.be.eql('Field1');
-            expect(statement.comparator).to.be.eql('$eq');
+            expect(statement.operator).to.be.eql('$eq');
             expect(statement.value).to.be.eql({ otherRandomField: ['value1', 'value2'] });
         });
-        it('Should create Statement with double operand comparator', () => {
+        it('Should create Statement with double operand operator', () => {
             const statement = new Statement('Field1', { $bt: ['value1', 'value2'] });
             expect(statement).to.be.be.an.instanceof(Statement);
             expect(statement.field).to.be.eql('Field1');
-            expect(statement.comparator).to.be.eql('$bt');
+            expect(statement.operator).to.be.eql('$bt');
             expect(statement.minValue).to.be.eql('value1');
             expect(statement.maxValue).to.be.eql('value2');
         });
-        it('Should create Statement with double operand comparator but single operand', () => {
+        it('Should create Statement with double operand operator but single operand', () => {
             const statement = new Statement('Field1', { $bt: ['value1'] });
             expect(statement).to.be.be.an.instanceof(Statement);
             expect(statement.field).to.be.eql('Field1');
-            expect(statement.comparator).to.be.eql('$bt');
+            expect(statement.operator).to.be.eql('$bt');
             expect(statement.minValue).to.be.eql('value1');
             expect(statement.maxValue).to.be.eql('value1');
         });
@@ -62,7 +62,7 @@ describe('Statement Class', () => {
             }
         });
     });
-    describe('evaluate', () => {
+    describe('Evaluate', () => {
         it('Should evaluate for \'$eq\' operator', () => {
             const statement = new Statement('Field1', 10);
             expect(statement.evaluate({ Field1: 10 })).to.be.true;
@@ -213,7 +213,7 @@ describe('Statement Class', () => {
                 $ip: [10, 31, 20],
                 $gt: 56
             });
-            expect(statement.comparator).to.be.eql('$ip');
+            expect(statement.operator).to.be.eql('$ip');
         });
     });
 });

@@ -9,14 +9,14 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}\\src\\index.js"
-        }
+        },
         {
             "type": "node",
             "request": "launch",
             "name": "Debug Unit Test",
             "program": "${workspaceRoot}/node_modules/mocha/bin/mocha",
             "args": [
-                "${workspaceFolder}/test/**/*spec.js"
+                "${workspaceFolder}/test/unit/**/*spec.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         }
