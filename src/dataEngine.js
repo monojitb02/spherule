@@ -1,5 +1,5 @@
 'use strict';
-const DataPoint = require('./dataPoint');
+const DataPoint = require('./adapters/dataAdapters/dataPoint');
 class DataEngine {
     constructor() {
         this.dataSources = {};

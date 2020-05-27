@@ -1,5 +1,5 @@
 'use strict';
-const Task = require('./task');
+const Task = require('./adapters/taskAdapters/task');
 const _ = require('lodash');
 class TaskEngine {
     constructor() {
